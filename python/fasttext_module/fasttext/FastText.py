@@ -4,15 +4,13 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import multiprocessing
+from itertools import chain
 
 import fasttext_pybind as fasttext
 import numpy as np
-import multiprocessing
-from itertools import chain
 
 loss_name = fasttext.loss_name
 model_name = fasttext.model_name
@@ -236,7 +234,7 @@ class _FastText:
             else:
                 probs, labels = ([], ())
 
-            return labels, np.array(probs, copy=False)
+            return labels, np.asarray(probs)
 
     def get_input_matrix(self):
         """
@@ -423,7 +421,7 @@ def _build_args(args, manually_set_args):
         args["autotuneModelSize"] = str(args["autotuneModelSize"])
 
     a = fasttext.args()
-    for (k, v) in args.items():
+    for k, v in args.items():
         setattr(a, k, v)
         if k in manually_set_args:
             a.setManual(k)
@@ -485,7 +483,7 @@ def read_args(arg_list, arg_dict, arg_names, default_values):
 
     ret = {}
     manually_set_args = set()
-    for (arg_name, arg_value) in chain(zip(arg_names, arg_list), arg_dict.items()):
+    for arg_name, arg_value in chain(zip(arg_names, arg_list), arg_dict.items()):
         if arg_name in param_map:
             arg_name = param_map[arg_name]
         if arg_name not in arg_names:
@@ -495,7 +493,7 @@ def read_args(arg_list, arg_dict, arg_names, default_values):
         ret[arg_name] = arg_value
         manually_set_args.add(arg_name)
 
-    for (arg_name, arg_value) in default_values.items():
+    for arg_name, arg_value in default_values.items():
         if arg_name not in ret:
             ret[arg_name] = arg_value
 
